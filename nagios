@@ -1,0 +1,190 @@
+#!/usr/bin/perl -w
+# -*-  perl -*-
+
+=head1 NAME
+
+nagios - Munin plugin to monitor nagios
+
+=head1 APPLICABLE SYSTEMS
+
+Every Linux system with nagios installed.
+
+=head1 CONFIGURATION
+
+=head1 USAGE 
+
+Link this plugin to /etc/munin/plugins/ and restart the munin-node.
+
+=head1 MAGIC MARKERS
+
+=head1 BUGS
+
+=head1 VERSION
+
+=head1 AUTHOR
+
+Shinji Tanaka
+
+=head1 LICENSE
+
+GPLv2
+
+=cut
+
+use strict;
+use Munin::Plugin;
+
+my $opts = "-c /etc/nagios/nagios.cfg";
+
+my $multigraphs = {
+    'number' => {
+	title => 'Number of Checks at Nagios',
+    },
+    'latency' => {
+	title => 'Latency of Checks at Nagios',
+    },
+    'execution' => {
+	title => 'Execution Time of Checks at Nagios',
+    }
+};
+
+my $graphs = {
+             'Total Services' => {
+		 field => 'total_services',
+		 draw => 'LINE2',
+		 multigraph => 'number',
+	     },
+	     'Services Checked' => {
+		 field => 'services_checked',
+		 draw => 'LINE2',
+		 multigraph => 'number',
+	     },
+	     'Total Hosts' => {
+		 field => 'total_hosts',
+		 draw => 'LINE2',
+		 multigraph => 'number',
+	     },
+	     'Hosts Checked' => {
+		 field => 'host_checked',
+		 draw => 'LINE2',
+		 multigraph => 'number',
+	     },
+	     'Active Host Latency' => {
+		 field => 'active_host_latency',
+		 draw => 'LINE2',
+		 column => 2,
+		 multigraph => 'latency',
+	     },
+	     'Active Service Latency' => {
+		 field => 'active_service_latency',
+		 draw => 'LINE2',
+		 column => 2,
+		 multigraph => 'latency',
+	     },
+	     'Active Host Execution Time' => {
+		 field => 'active_host_execution_time',
+		 draw => 'LINE2',
+		 column => 2,
+		 multigraph => 'execution',
+	     },
+	     'Active Service Execution Time' => {
+		 field => 'active_service_execution_time',
+		 draw => 'LINE2',
+		 column => 2,
+		 multigraph => 'execution',
+	     },
+	     'Active Hosts Last 1/5/15/60 min' => {
+		 field => 'active_hosts_last_15min',
+		 draw => 'LINE2',
+		 column => 2,
+		 multigraph => 'number',
+	     },
+	     'Active Services Last 1/5/15/60 min' => {
+		 field => 'active_services_last_15min',
+		 draw => 'LINE2',
+		 column => 2,
+		 multigraph => 'number',
+	     },
+};
+
+
+sub print_values() {
+    
+    open (DF,"/usr/bin/nagiostats $opts |") or die "Could not open pipe from nagiostats, $!";
+    while(<DF>){
+	chomp;
+        last if /^--------/;
+    }
+
+    while (<DF>) {
+	chomp;
+	next unless /^[A-Z]/;
+        $_ =~ s/\s+/ /g;
+
+        my ($label, $value) = split(/:/, $_);
+        if($graphs->{$label}){
+	    $value =~ s/^\s+//;
+	    if($graphs->{$label}->{column}){
+		my @values = split(/[^0-9.]+/, $value);
+		$value = $values[$graphs->{$label}->{column}];
+	    }
+            $graphs->{$label}->{value} = $value;
+        } else {
+            #print $label,"\n";
+        }
+    }
+    close DF;
+    die "Error executing df. Exit code $?\n" if $?;
+
+    for my $graph (keys %$multigraphs){
+
+	print <<EOS;
+multigraph $graph
+EOS
+;
+	
+	for my $k (keys %$graphs){
+	    if($graphs->{$k}->{multigraph} eq $graph){
+		print $graphs->{$k}->{field},".value ", $graphs->{$k}->{value}, "\n";
+	    }
+	}
+	print "\n";
+    }
+}
+
+if ( defined($ARGV[0]) and $ARGV[0] eq "autoconf" ) {
+    if (`/usr/bin/perl $0` eq "" ) {
+	print "no\n";
+	exit 0;
+    } else {
+	print "yes\n";
+	exit 0;
+    }
+}
+
+if ( defined($ARGV[0]) and $ARGV[0] eq "config" ) {
+    # The headers
+
+    for my $graph (keys %$multigraphs){
+
+	print <<EOS;
+multigraph $graph
+graph_title $multigraphs->{$graph}->{title}
+graph_category nagios
+EOS
+;
+	
+	for my $k (keys %$graphs){
+	    if($graphs->{$k}->{multigraph} eq $graph){
+		print $graphs->{$k}->{field},".label ", $k, "\n";
+		print $graphs->{$k}->{field},".draw ", $graphs->{$k}->{draw}, "\n";
+	    }
+	}
+
+	print "\n";
+    }
+
+    exit 0;
+}
+
+print_values();
