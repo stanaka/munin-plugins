@@ -37,13 +37,13 @@ use Munin::Plugin;
 my $opts = "-c /etc/nagios/nagios.cfg";
 
 my $multigraphs = {
-    'number' => {
+    'nagios-number' => {
 	title => 'Number of Checks at Nagios',
     },
-    'latency' => {
+    'nagios-latency' => {
 	title => 'Latency of Checks at Nagios',
     },
-    'execution' => {
+    'nagios-execution' => {
 	title => 'Execution Time of Checks at Nagios',
     }
 };
@@ -52,58 +52,58 @@ my $graphs = {
              'Total Services' => {
 		 field => 'total_services',
 		 draw => 'LINE2',
-		 multigraph => 'number',
+		 multigraph => 'nagios-number',
 	     },
 	     'Services Checked' => {
 		 field => 'services_checked',
 		 draw => 'LINE2',
-		 multigraph => 'number',
+		 multigraph => 'nagios-number',
 	     },
 	     'Total Hosts' => {
 		 field => 'total_hosts',
 		 draw => 'LINE2',
-		 multigraph => 'number',
+		 multigraph => 'nagios-number',
 	     },
 	     'Hosts Checked' => {
 		 field => 'host_checked',
 		 draw => 'LINE2',
-		 multigraph => 'number',
+		 multigraph => 'nagios-number',
 	     },
 	     'Active Host Latency' => {
 		 field => 'active_host_latency',
 		 draw => 'LINE2',
 		 column => 2,
-		 multigraph => 'latency',
+		 multigraph => 'nagios-latency',
 	     },
 	     'Active Service Latency' => {
 		 field => 'active_service_latency',
 		 draw => 'LINE2',
 		 column => 2,
-		 multigraph => 'latency',
+		 multigraph => 'nagios-latency',
 	     },
 	     'Active Host Execution Time' => {
 		 field => 'active_host_execution_time',
 		 draw => 'LINE2',
 		 column => 2,
-		 multigraph => 'execution',
+		 multigraph => 'nagios-execution',
 	     },
 	     'Active Service Execution Time' => {
 		 field => 'active_service_execution_time',
 		 draw => 'LINE2',
 		 column => 2,
-		 multigraph => 'execution',
+		 multigraph => 'nagios-execution',
 	     },
 	     'Active Hosts Last 1/5/15/60 min' => {
 		 field => 'active_hosts_last_15min',
 		 draw => 'LINE2',
 		 column => 2,
-		 multigraph => 'number',
+		 multigraph => 'nagios-number',
 	     },
 	     'Active Services Last 1/5/15/60 min' => {
 		 field => 'active_services_last_15min',
 		 draw => 'LINE2',
 		 column => 2,
-		 multigraph => 'number',
+		 multigraph => 'nagios-number',
 	     },
 };
 
