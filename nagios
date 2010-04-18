@@ -95,12 +95,14 @@ my $graphs = {
 	     },
 	     'Active Hosts Last 1/5/15/60 min' => {
 		 field => 'active_hosts_last_15min',
+		 title => 'Active Hosts Last 15 min',
 		 draw => 'LINE2',
 		 column => 2,
 		 multigraph => 'nagios-number',
 	     },
 	     'Active Services Last 1/5/15/60 min' => {
 		 field => 'active_services_last_15min',
+		 title => 'Active Services Last 15 min',
 		 draw => 'LINE2',
 		 column => 2,
 		 multigraph => 'nagios-number',
@@ -176,7 +178,7 @@ EOS
 	
 	for my $k (keys %$graphs){
 	    if($graphs->{$k}->{multigraph} eq $graph){
-		print $graphs->{$k}->{field},".label ", $k, "\n";
+		print $graphs->{$k}->{field},".label ", $graphs->{$k}->{title} || $k, "\n";
 		print $graphs->{$k}->{field},".draw ", $graphs->{$k}->{draw}, "\n";
 	    }
 	}
